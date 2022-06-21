@@ -1,57 +1,6 @@
-provider "azurerm" {
-  features {}
-}
-
-provider "kubernetes" {
-  host                   = module.kubernetes.kube_config.host
-  client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
-  client_key             = base64decode(module.kubernetes.kube_config.client_key)
-  cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = module.kubernetes.kube_config.host
-    client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
-    client_key             = base64decode(module.kubernetes.kube_config.client_key)
-    cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
-  }
-}
-
-locals {
-  names = var.naming_conventions_enabled ? module.metadata[0].names : merge(
-    {
-      business_unit     = var.metadata.business_unit
-      environment       = var.metadata.environment
-      location          = var.metadata.location
-      market            = var.metadata.market
-      subscription_type = var.metadata.subscription_type
-    },
-    var.metadata.product_group != "" ? { product_group = var.metadata.product_group } : {},
-    var.metadata.product_name != "" ? { product_name = var.metadata.product_name } : {},
-    var.metadata.resource_group_type != "" ? { resource_group_type = var.metadata.resource_group_type } : {}
-  )
-
-  tags = merge(module.metadata[0].tags, { "admin" : var.admin.name }, { "email" : var.admin.email })
-}
-
-data "http" "my_ip" {
-  url = "http://ipv4.icanhazip.com"
-}
-
-data "azurerm_subscription" "current" {
-}
-
-resource "random_string" "random" {
-  length  = 12
-  upper   = false
-  number  = false
-  special = false
-}
-
-resource "random_password" "admin" {
-  length  = 6
-  special = true
+resource "random_integer" "int" {
+  min = 1
+  max = 3
 }
 
 module "subscription" {
@@ -61,18 +10,15 @@ module "subscription" {
 
 module "naming" {
   source = "github.com/Azure-Terraform/example-naming-template.git?ref=v1.0.0"
-
-  count = var.naming_conventions_enabled ? 1 : 0
 }
 
 module "metadata" {
   source = "github.com/Azure-Terraform/terraform-azurerm-metadata.git?ref=v1.5.1"
 
-  count        = var.naming_conventions_enabled ? 1 : 0
-  naming_rules = module.naming[0].yaml
+  naming_rules = module.naming.yaml
 
   market              = var.metadata.market
-  location            = var.metadata.location
+  location            = local.virtual_network.location
   sre_team            = var.metadata.sre_team
   environment         = var.metadata.environment
   product_name        = var.metadata.product_name
@@ -88,65 +34,20 @@ module "resource_group" {
   source = "github.com/Azure-Terraform/terraform-azurerm-resource-group.git?ref=v2.0.0"
 
   unique_name = var.resource_group.unique_name
-  location    = var.metadata.location
+  location    = local.virtual_network.location
   names       = local.names
   tags        = local.tags
 }
 
-module "virtual_network" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network.git?ref=v2.9.0"
+module "kubernetes" {
+  source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git?ref=v4.2.1"
 
-  naming_rules = var.naming_conventions_enabled ? module.naming[0].yaml : null
-
-  resource_group_name = module.resource_group.name
+  cluster_name        = local.cluster_name
   location            = module.resource_group.location
   names               = local.names
   tags                = local.tags
-
-  address_space = ["10.1.0.0/22"]
-
-  subnets = {
-    iaas-private = {
-      cidrs                   = ["10.1.0.0/24"]
-      route_table_association = "default"
-      configure_nsg_rules     = false
-    }
-    iaas-public = {
-      cidrs                   = ["10.1.1.0/24"]
-      route_table_association = "default"
-      configure_nsg_rules     = false
-    }
-  }
-
-  route_tables = {
-    default = {
-      disable_bgp_route_propagation = true
-      routes = {
-        internet = {
-          address_prefix = "0.0.0.0/0"
-          next_hop_type  = "Internet"
-        }
-        local-vnet = {
-          address_prefix = "10.1.0.0/22"
-          next_hop_type  = "vnetlocal"
-        }
-      }
-    }
-  }
-}
-
-module "kubernetes" {
-  # source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git?ref=v4.2.0"
-  source = "github.com/Azure-Terraform/terraform-azurerm-kubernetes.git?ref=v4.2.1"
-
-  cluster_name        = "${local.names.resource_group_type}-${local.names.product_name}-terraform-${local.names.location}-${var.admin.name}"
-  location            = var.metadata.location
-  names               = local.names
-  tags                = local.tags
   resource_group_name = module.resource_group.name
-
-  identity_type = "UserAssigned" # Allowed values: UserAssigned or SystemAssigned
-
+  identity_type       = "UserAssigned" # Allowed values: UserAssigned or SystemAssigned
   rbac = {
     enabled        = false
     ad_integration = false
@@ -158,68 +59,204 @@ module "kubernetes" {
   virtual_network = {
     subnets = {
       private = {
-        id = module.virtual_network.subnets["iaas-private"].id
+        id = local.virtual_network.private_subnet_id
       }
       public = {
-        id = module.virtual_network.subnets["iaas-public"].id
+        id = local.virtual_network.public_subnet_id
       }
     }
-    route_table_id = module.virtual_network.route_tables["default"].id
+    route_table_id = local.virtual_network.route_table_id
   }
 
-  node_pools = {
-    system = {
-      vm_size                      = var.system_node_pool.vm_size
-      node_count                   = var.system_node_pool.node_count
-      only_critical_addons_enabled = true
-      subnet                       = "private"
+  node_pools = var.node_pools
+
+  default_node_pool = "system" //name of the sub-key, which is the default node pool.
+
+}
+
+resource "kubernetes_secret" "sa_secret" {
+  count = var.storage.default ? 0 : 1
+
+  metadata {
+    name = "azure-secret"
+  }
+
+  data = {
+    "azurestorageaccountname" = local.storage_account.name
+    "azurestorageaccountkey"  = data.azurerm_storage_account.hpccsa[0].primary_access_key
+  }
+
+  type = "Opaque"
+}
+
+resource "kubernetes_secret" "private_docker_registry" {
+  count = can(var.registry.server) && can(var.registry.username) && can(var.registry.password) ? 1 : 0
+  metadata {
+    name = "docker-cfg"
+  }
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "${var.registry.server}" = {
+          "username" = var.registry.username
+          "password" = var.registry.password
+          "email"    = var.admin.email
+          "auth"     = base64encode("${var.registry.username}:${var.registry.password}")
+        }
+      }
+    })
+  }
+}
+
+resource "helm_release" "hpcc" {
+  count = var.disable_helm ? 0 : 1
+
+  name                       = can(var.hpcc.name) ? var.hpcc.name : "myhpcck8s"
+  version                    = can(var.hpcc.version) ? var.hpcc.version : null
+  chart                      = can(var.hpcc.remote_chart) ? "hpcc" : var.hpcc.local_chart
+  repository                 = can(var.hpcc.remote_chart) ? var.hpcc.remote_chart : null
+  create_namespace           = true
+  namespace                  = try(var.hpcc.namespace, terraform.workspace)
+  atomic                     = try(var.hpcc.atomic, false)
+  recreate_pods              = try(var.hpcc.recreate_pods, false)
+  reuse_values               = try(var.hpcc.reuse_values, false)
+  reset_values               = try(var.hpcc.reset_values, false)
+  force_update               = try(var.hpcc.force_update, false)
+  cleanup_on_fail            = try(var.hpcc.cleanup_on_fail, false)
+  disable_openapi_validation = try(var.hpcc.disable_openapi_validation, false)
+  max_history                = try(var.hpcc.max_history, 0)
+  wait                       = try(var.hpcc.wait, true)
+  dependency_update          = try(var.hpcc.dependency_update, false)
+  timeout                    = try(var.hpcc.timeout, 900)
+  wait_for_jobs              = try(var.hpcc.wait_for_jobs, false)
+  lint                       = try(var.hpcc.lint, false)
+
+  values = concat(var.elastic4hpcclogs.enable ? [data.http.elastic4hpcclogs_hpcc_logaccess.body] : [], var.hpcc.expose_eclwatch ? [file("${path.root}/values/esp.yaml")] : [],
+  [file("${path.root}/values/values-retained-azurefile.yaml")], try([for v in var.hpcc.values : file(v)], []))
+
+  dynamic "set" {
+    for_each = can(var.hpcc.image_root) ? [1] : []
+    content {
+      name  = "global.image.root"
+      value = var.hpcc.image_root
     }
-    linuxweb = {
-      vm_size             = var.additional_node_pool.vm_size
-      enable_auto_scaling = var.additional_node_pool.enable_auto_scaling
-      min_count           = var.additional_node_pool.min_count
-      max_count           = var.additional_node_pool.max_count
-      subnet              = "public"
+  }
+
+  dynamic "set" {
+    for_each = can(var.hpcc.image_name) ? [1] : []
+    content {
+      name  = "global.image.name"
+      value = var.hpcc.image_name
     }
   }
 
-  default_node_pool = "system"
+  dynamic "set" {
+    for_each = can(var.hpcc.image_version) ? [1] : []
+    content {
+      name  = "global.image.version"
+      value = var.hpcc.image_version
+    }
+  }
 
+  dynamic "set" {
+    for_each = can(var.hpcc.image_root) ? [1] : []
+    content {
+      name  = "global.image.imagePullSecrets"
+      value = kubernetes_secret.private_docker_registry[0].metadata[0].name
+    }
+  }
+
+  depends_on = [
+    helm_release.elastic4hpcclogs,
+    helm_release.storage,
+    module.kubernetes
+  ]
 }
 
-module "helm" {
-  source = "github.com/gfortil/terraform-azurerm-hpcc-helm.git?ref=v2.0.0"
+resource "helm_release" "elastic4hpcclogs" {
+  count = var.disable_helm || !var.elastic4hpcclogs.enable ? 0 : 1
 
-  image = {
-    version = var.hpcc_image.version
-    root    = var.hpcc_image.root
-    name    = var.hpcc_image.name
+  name                       = can(var.elastic4hpcclogs.name) ? var.elastic4hpcclogs.name : "myelastic4hpcclogs"
+  namespace                  = try(var.hpcc.namespace, terraform.workspace)
+  chart                      = can(var.elastic4hpcclogs.remote_chart) ? "elastic4hpcclogs" : var.elastic4hpcclogs.local_chart
+  repository                 = can(var.elastic4hpcclogs.remote_chart) ? var.elastic4hpcclogs.remote_chart : null
+  version                    = can(var.elastic4hpcclogs.version) ? var.elastic4hpcclogs.version : null
+  values                     = try([for v in var.elastic4hpcclogs.values : file(v)], [])
+  create_namespace           = true
+  atomic                     = try(var.elastic4hpcclogs.atomic, false)
+  force_update               = try(var.elastic4hpcclogs.force_update, false)
+  recreate_pods              = try(var.elastic4hpcclogs.recreate_pods, false)
+  reuse_values               = try(var.elastic4hpcclogs.reuse_values, false)
+  reset_values               = try(var.elastic4hpcclogs.reset_values, false)
+  cleanup_on_fail            = try(var.elastic4hpcclogs.cleanup_on_fail, false)
+  disable_openapi_validation = try(var.elastic4hpcclogs.disable_openapi_validation, false)
+  wait                       = try(var.elastic4hpcclogs.wait, true)
+  max_history                = try(var.storage.max_history, 0)
+  dependency_update          = try(var.elastic4hpcclogs.dependency_update, false)
+  timeout                    = try(var.elastic4hpcclogs.timeout, 300)
+  wait_for_jobs              = try(var.elastic4hpcclogs.wait_for_jobs, false)
+  lint                       = try(var.elastic4hpcclogs.lint, false)
+
+  dynamic "set" {
+    for_each = can(var.elastic4hpcclogs.expose) ? [1] : []
+    content {
+      type  = "string"
+      name  = "kibana.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-internal"
+      value = tostring(false)
+    }
   }
 
-  use_local_charts = var.use_local_charts
-
-  hpcc_helm = {
-    local_chart = var.hpcc_helm.local_chart # Clone helm-chart.git if left empty. Examples: ./HPCC-Platform, ./helm-chart
-
-    name          = var.hpcc_helm.name
-    chart_version = var.hpcc_helm.chart_version # Tag or branch for local. Examples: 8.2.4, my-feature-branch
-    namespace     = var.hpcc_helm.namespace
-    values        = var.hpcc_helm.values # A list of desired state files similar to -f in CLI
-  }
-
-  storage_helm = {
-    values = var.storage_helm.values
-  }
-
-  elk_helm = {
-    name = var.elk_helm.name
-  }
+  depends_on = [
+    helm_release.storage
+  ]
 }
 
-output "aks_login" {
-  value = "az aks get-credentials --name ${module.kubernetes.name} --resource-group ${module.resource_group.name}"
+resource "helm_release" "storage" {
+  count = var.disable_helm ? 0 : 1
+
+  name                       = "azstorage"
+  chart                      = can(var.storage.remote_chart) ? "hpcc-azurefile" : var.storage.local_chart
+  repository                 = can(var.storage.remote_chart) ? var.storage.remote_chart : null
+  version                    = can(var.storage.version) ? var.storage.version : null
+  values                     = concat(var.storage.default ? [] : [file("${path.root}/values/hpcc-azurefile.yaml")], try([for v in var.storage.values : file(v)], []))
+  create_namespace           = true
+  namespace                  = try(var.hpcc.namespace, terraform.workspace)
+  atomic                     = try(var.storage.atomic, false)
+  force_update               = try(var.storage.force_update, false)
+  recreate_pods              = try(var.storage.recreate_pods, false)
+  reuse_values               = try(var.storage.reuse_values, false)
+  reset_values               = try(var.storage.reset_values, false)
+  cleanup_on_fail            = try(var.storage.cleanup_on_fail, null)
+  disable_openapi_validation = try(var.storage.disable_openapi_validation, false)
+  wait                       = try(var.storage.wait, true)
+  max_history                = try(var.storage.max_history, 0)
+  dependency_update          = try(var.storage.dependency_update, false)
+  timeout                    = try(var.storage.timeout, 600)
+  wait_for_jobs              = try(var.storage.wait_for_jobs, false)
+  lint                       = try(var.storage.lint, false)
+
+  depends_on = [
+    module.kubernetes
+  ]
 }
 
-output "recommendations" {
-  value = data.azurerm_advisor_recommendations.advisor.recommendations
+resource "null_resource" "az" {
+  count = var.auto_connect ? 1 : 0
+
+  provisioner "local-exec" {
+    command     = local.az_command
+    interpreter = local.is_windows_os ? ["PowerShell", "-Command"] : ["/bin/bash", "-c"]
+  }
+
+  triggers = { kubernetes_id = module.kubernetes.id } //must be run after the Kubernetes cluster is deployed.
+}
+
+resource "null_resource" "launch_svc_url" {
+  for_each = var.auto_launch_eclwatch && try(helm_release.hpcc[0].status, "") == "deployed" ? local.web_urls : {}
+
+  provisioner "local-exec" {
+    command     = local.is_windows_os ? "Start-Process ${each.value}" : "open ${each.value} || xdg-open ${each.value}"
+    interpreter = local.is_windows_os ? ["PowerShell", "-Command"] : ["/bin/bash", "-c"]
+  }
 }

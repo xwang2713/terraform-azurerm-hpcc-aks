@@ -6,7 +6,31 @@ variable "admin" {
   })
 }
 
-variable "naming_conventions_enabled" {
+variable "expose_services" {
+  description = "Expose ECLWatch and elastic4hpcclogs to the Internet. This is not secure. Please consider before using it."
+  type        = bool
+  default     = false
+}
+
+variable "auto_launch_eclwatch" {
+  description = "Auto launch ELCWatch after each connection to the cluster."
+  type        = bool
+  default     = false
+}
+
+variable "auto_connect" {
+  description = "Automatically connect to the Kubernetes cluster from the host machine by overwriting the current context."
+  type        = bool
+  default     = false
+}
+
+variable "disable_helm" {
+  description = "Disable Helm deployments by Terraform."
+  type        = bool
+  default     = false
+}
+
+variable "disable_naming_conventions" {
   description = "Naming convention module."
   type        = bool
   default     = false
@@ -16,7 +40,6 @@ variable "metadata" {
   description = "Metadata module variables."
   type = object({
     market              = string
-    location            = string
     sre_team            = string
     environment         = string
     product_name        = string
@@ -30,7 +53,6 @@ variable "metadata" {
   default = {
     business_unit       = ""
     environment         = ""
-    location            = ""
     market              = ""
     product_group       = ""
     product_name        = "hpcc"
@@ -41,102 +63,56 @@ variable "metadata" {
   }
 }
 
+variable "tags" {
+  description = "Additional resource tags."
+  type        = map(string)
+
+  default = {
+    "" = ""
+  }
+}
+
 variable "resource_group" {
   description = "Resource group module variables."
-  type = object({
-    unique_name = bool
-  })
+  type        = any
 
   default = {
     unique_name = true
   }
 }
 
-variable "system_node_pool" {
-  description = "Kubernetes system node pool variables."
-  type = object({
-    vm_size    = string
-    node_count = number
-  })
-
-  default = {
-    node_count = 1
-    vm_size    = "Standard_D2s_v3"
-  }
+variable "virtual_network" {
+  description = "Virtual network attributes."
+  type        = any
+  default     = null
 }
 
-variable "additional_node_pool" {
-  description = "Kubernetes user node pool variables."
-  type = object({
-    vm_size             = string
-    enable_auto_scaling = bool
-    min_count           = number
-    max_count           = number
-  })
-
-  default = {
-    enable_auto_scaling = true
-    max_count           = 0
-    min_count           = 0
-    vm_size             = "Standard_D2s_v3"
-  }
+variable "node_pools" {
+  description = "node pools"
+  type        = any # top level keys are node pool names, sub-keys are subset of node_pool_defaults keys
+  default     = { default = {} }
 }
 
-variable "hpcc_image" {
-  description = "HPCC image variables."
-  type = object({
-    version = string
-    root    = string
-    name    = string
-  })
-
-  default = {
-    name    = "platform-core"
-    root    = "hpccsystems"
-    version = "latest"
-  }
+variable "hpcc" {
+  description = "HPCC Helm chart variables."
+  type        = any
+  default     = { name = "myhpcck8s" }
 }
 
-
-variable "use_local_charts" {
-  description = "Use local charts instead of remote."
-  type        = bool
-  default     = false
+variable "storage" {
+  description = "Storage account arguments."
+  type        = any
+  default     = { default = false }
 }
 
-variable "hpcc_helm" {
-  description = "HPCC helm chart variables."
-  type = object({
-    local_chart   = string
-    chart_version = string
-    namespace     = string
-    name          = string
-    values        = list(string)
-  })
-
-  default = {
-    chart_version = null
-    local_chart   = null
-    name          = "myhpcck8s"
-    namespace     = "default"
-    values        = []
-  }
+variable "elastic4hpcclogs" {
+  description = "HPCC Helm chart variables."
+  type        = any
+  default     = { name = "myelastic4hpcclogs", enable = true }
 }
 
-variable "storage_helm" {
-  description = "HPCC helm chart variables."
-  type = object({
-    values = list(string)
-  })
-}
-
-variable "elk_helm" {
-  description = "HPCC helm chart variables."
-  type = object({
-    name = string
-  })
-
-  default = {
-    name = "myhpccelk"
-  }
+variable "registry" {
+  description = "Use if image is hosted on a private docker repository."
+  type        = any
+  default     = {}
 }
