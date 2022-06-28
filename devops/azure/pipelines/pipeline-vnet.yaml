@@ -1,0 +1,65 @@
+# Azure DevOps pipeline for Azure deployment
+#variables:
+#- group: tf-vnet-ce
+
+trigger:
+  branches:
+    include:
+    - az-devops
+  paths:
+    include:
+    - modules/virtual_network
+
+stages:
+- stage: Validate
+  displayName: Validate
+  jobs:
+  - job: validate
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: TerraformInstaller@0
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: 'latest'
+
+    # Init  
+    - task: TerraformCLI@0
+      displayName: Initialize Terraform
+      inputs:
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/virtual_network'
+
+    # Validate
+    - task: TerraformCLI@0
+      displayName: Validate Config
+      inputs:
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/virtual_network'
+
+- stage: Apply
+  displayName: Apply
+  jobs:
+  - job: apply
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: TerraformInstaller@0
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: 'latest'
+
+   # Init  
+    - task: TerraformCLI@0
+      displayName: Initialize Terraform
+      inputs:
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/virtual_network'   
+
+     # Apply
+    - task: TerraformCLI@0
+      displayName: Apply Terraform Deployment
+      inputs:
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/modules/virtual_network'
+        commandOptions: '-var-file=$(System.DefaultWorkingDirectory)/devops/azure/vars/vnet.tfvars  -auto-approve'  
