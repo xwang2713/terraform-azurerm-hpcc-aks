@@ -1,0 +1,25 @@
+name: Terraform Continue Integration
+
+on:
+  push:
+    branches:
+    - 'az-devops'
+
+jobs:    
+  Virtual-network:
+    name: "Deploy Virtual Network module"
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: modules/virtual_network
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Initialize Terraform
+      run: terraform init
+        
