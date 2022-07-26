@@ -22,11 +22,10 @@ jobs:
 
     - name: Azure CLI script
       uses: azure/CLI@v1
-      
-    - name: Azure Login wtih AZ CLI
-      run: |
-        az login --service-principal -u 025881d1-4538-4bee-8194-b1d89351603e \
-          -p Dqf8Q~L8pwiJ~AN8XLxYVadDCsRD8OWgY71rAduV --tenant bc877e61-f6cf-4461-accd-0565fa4ca357
+      with:
+        inlineScript: |
+          az login --service-principal -u 025881d1-4538-4bee-8194-b1d89351603e \
+            -p Dqf8Q~L8pwiJ~AN8XLxYVadDCsRD8OWgY71rAduV --tenant bc877e61-f6cf-4461-accd-0565fa4ca357
 
     #- name: 'Az CLI login'
     #  uses: azure/login@v1
