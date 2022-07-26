@@ -37,13 +37,11 @@ jobs:
     - name: Initialize Terraform
       run: terraform init
 
-    - name: Test github workspace
+    - name: Change test directory permission
       run: |
-        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        #echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
         echo "github.workspace: ${{ github.workspace }} "
-        tree ${{ github.workspace }}
-        find ${{ github.workspace }} -name basic
-        ls -l ${{ github.workspace }}
+        chmod 777 ${{ github.workspace }}/devops/test/basic
 
     - name: Run ECL Test
       uses: addnab/docker-run-action@v3
