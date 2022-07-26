@@ -2,8 +2,8 @@
 
 WK_DIR=$(dirname "${BASH_SOURCE[0]}")
 # Test ecl code through esp
-echo "this is a test" > ${WK_DIR}/my.out
-ls -l ${WK_DIR}/
+
+
 /opt/HPCCSystems/bin/ecl run  -s $1 hthor ${WK_DIR}/simple.ecl > ${WK_DIR}/simple_result 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
@@ -12,7 +12,7 @@ if [ $rc -ne 0 ]; then
 fi
 
 # Validate result
-cat ${WK_DIR}/simple_result | grep "<Row><personid>2</personid><firstname>Joe[[:space:]]*</firstname><lastname>Blow[[:space:]]*</lastname></Row>" test_result > /dev/null
+cat ${WK_DIR}/simple_result | grep "<Row><personid>2</personid><firstname>Joe[[:space:]]*</firstname><lastname>Blow[[:space:]]*</lastname></Row>"  > /dev/null
 if [ $rc -ne 0 ]; then
   echo "Test result validate failed!"
   exit 3
