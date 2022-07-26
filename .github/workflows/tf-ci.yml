@@ -49,7 +49,7 @@ jobs:
         image: hpccsystems/platform-core:latest
         options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
         run: |
-          /basic-test/run.sh 20.237.91.89
-          touch myfile
-          ls -l /basic-test/
-          cat /basic-test/simple_result
+          ls -l /opt/HPCCSystems/bin/ecl
+          /opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
+          #/basic-test/run.sh 20.237.91.89
+
