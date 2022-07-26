@@ -5,9 +5,14 @@ on:
     branches:
     - 'az-devops'
 
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
 jobs:    
+    
   Terraform-CI:
-    name: "Deploy Virtual Network module"
+    name: "Terraform CI"
     runs-on: ubuntu-20.04
     defaults:
       run:
