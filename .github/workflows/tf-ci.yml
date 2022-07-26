@@ -50,9 +50,9 @@ jobs:
     - name: Initialize Terraform
       run: terraform init
 
-    #- name: Apply VNet Terraform
-    #  run: terraform apply -var-file=../../devops/terraform/vnet.tfvars -auto-approve
-    #  working-directory: modules/virtual_network
+    - name: Apply VNet Terraform
+      run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/vnet.tfvars -auto-approve
+      working-directory: ${{ github.workspace }}/modules/virtual_network
 
     #- name: Initialize SC Terraform
     #  run: terraform init
@@ -98,6 +98,6 @@ jobs:
     #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
     #  working-directory: ${{ github.workspace }}/modules/storage_account
 
-    #- name: Destroy VNet Terraform
-    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/vnet.tfvars -auto-approve
-    #  working-directory: ${{ github.workspace }}/modules/virtual_network
+    - name: Destroy VNet Terraform
+      run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/vnet.tfvars -auto-approve
+      working-directory: ${{ github.workspace }}/modules/virtual_network
