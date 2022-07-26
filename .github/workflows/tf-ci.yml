@@ -49,7 +49,6 @@ jobs:
         image: hpccsystems/platform-core:latest
         options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
         run: |
-          ls -l /opt/HPCCSystems/bin/ecl
-          /opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
-          #/basic-test/run.sh 20.237.91.89
+          #/opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
+          /basic-test/run.sh 20.237.91.89
 
