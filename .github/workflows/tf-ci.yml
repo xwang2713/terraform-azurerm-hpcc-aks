@@ -37,6 +37,11 @@ jobs:
     - name: Initialize Terraform
       run: terraform init
 
+    - name: Test github workspace
+      run: |
+        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        echo "github.workspace: ${{ github.workspace }} "
+        
     - name: Run ECL Test
       uses: addnab/docker-run-action@v3
       with:
