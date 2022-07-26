@@ -50,6 +50,6 @@ jobs:
         options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
         run: |
           /basic-test/run.sh 20.237.91.89
-          ls /basic-test/
           touch myfile
+          ls -l /basic-test/
           cat /basic-test/simple_result
