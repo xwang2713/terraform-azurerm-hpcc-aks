@@ -50,3 +50,4 @@ jobs:
         options: -v ${{ github.workspace }}/devops/test/basic:/basic-test
         run: |
           /basic-test/run.sh 20.237.91.89
+          cat /basic-test/simple_result
