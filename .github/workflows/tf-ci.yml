@@ -47,7 +47,9 @@ jobs:
       uses: addnab/docker-run-action@v3
       with:
         image: hpccsystems/platform-core:latest
-        options: -v ${{ github.workspace }}/devops/test/basic:/basic-test
+        options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
         run: |
           /basic-test/run.sh 20.237.91.89
+          ls /basic-test/
+          touch myfile
           cat /basic-test/simple_result
