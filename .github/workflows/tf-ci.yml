@@ -15,40 +15,81 @@ jobs:
         working-directory: modules/virtual_network
     steps:
 
-    #- name: 'Az CLI login'
-    #  uses: azure/login@v1
-    #  with:
-    #    client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    #    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-
-    #- name: 'Run az commands'
-    #  run: |
-    #    az account show
-    #    az group list
-    #    pwd 
-
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-
-    - name: Initialize Terraform
-      run: terraform init
-
-    - name: Change test directory permission
-      run: |
-        #echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-        echo "github.workspace: ${{ github.workspace }} "
-        chmod 777 ${{ github.workspace }}/devops/test/basic
-
-    - name: Run ECL Test
-      uses: addnab/docker-run-action@v3
+    - name: 'Az CLI login'
+      uses: azure/login@v1
       with:
-        image: hpccsystems/platform-core:latest
-        options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
-        run: |
-          #/opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
-          /basic-test/run.sh 20.237.91.89
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
 
+    - name: 'Run az commands'
+      run: |
+        az account show
+        az group list
+        pwd 
+
+    #- name: Checkout
+    #  uses: actions/checkout@v2
+
+    #- name: Setup Terraform
+    #  uses: hashicorp/setup-terraform@v2
+     # id: setup-terraform
+
+    #- name: Setup Kubectl
+    #  uses: azure/setup-kubectl@v3
+    #  id: setup-kubectl
+
+    #- name: Initialize Terraform
+    #  run: terraform init
+
+    #- name: Apply VNet Terraform
+    #  run: terraform apply -var-file=../../devops/terraform/vnet.tfvars -auto-approve
+    #  working-directory: modules/virtual_network
+
+    #- name: Initialize SC Terraform
+    #  run: terraform init
+    #  working-directory: modules/storage_account
+
+    #- name: Apply SC Terraform
+    #  run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
+    #  working-directory: ${{ github.workspace }}/modules/storage_account
+
+    #- name: Initialize HPCC-Platform Terraform
+    #  run: terraform init
+    #  working-directory: ${{ github.workspace }}
+
+    #- name: Apply HPCC-Platform Terraform
+    #  run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/hpcc.tfvars -auto-approve
+    #  working-directory: ${{ github.workspace }}
+
+    #- name : Get EclWatch IP
+    #  run: |
+    #    sleep 60
+    #    filed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep "NAME" || true) &&
+        
+    #- name: Change test directory permission
+    #  run: |
+        #echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        #echo "github.workspace: ${{ github.workspace }} "
+        #chmod 777 ${{ github.workspace }}/devops/test/basic
+
+    #- name: Run ECL Test
+    #  uses: addnab/docker-run-action@v3
+    #  with:
+    #    image: hpccsystems/platform-core:latest
+    #    options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
+    #    run: |
+    #      #/opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
+    #      /basic-test/run.sh 20.237.91.89
+
+    #- name: Destroy HPCC-Platform  Terraform
+    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
+    #  working-directory: ${{ github.workspace }}
+
+    #- name: Destroy SC Terraform
+    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
+    #  working-directory: ${{ github.workspace }}/modules/storage_account
+
+    #- name: Destroy VNet Terraform
+    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/vnet.tfvars -auto-approve
+    #  working-directory: ${{ github.workspace }}/modules/virtual_network
