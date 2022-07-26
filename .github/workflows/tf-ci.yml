@@ -41,7 +41,10 @@ jobs:
       run: |
         echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
         echo "github.workspace: ${{ github.workspace }} "
-        
+        tree ${{ github.workspace }}
+        find ${{ github.workspace }} -name basic
+        ls -l ${{ github.workspace }}
+
     - name: Run ECL Test
       uses: addnab/docker-run-action@v3
       with:
