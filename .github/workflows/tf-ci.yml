@@ -24,15 +24,10 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az login --service-principal -u 025881d1-4538-4bee-8194-b1d89351603e \
-            -p Dqf8Q~L8pwiJ~AN8XLxYVadDCsRD8OWgY71rAduV --tenant bc877e61-f6cf-4461-accd-0565fa4ca357
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
+            -p ${{ secrets.SERVICE_PRINCIPAL_VALUE }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
-    #- name: 'Az CLI login'
-    #  uses: azure/login@v1
-    #  with:
-    #    client-id: 025881d1-4538-4bee-8194-b1d89351603e
-    #    tenant-id: bc877e61-f6cf-4461-accd-0565fa4ca357
-    #    subscription-id: Dqf8Q~L8pwiJ~AN8XLxYVadDCsRD8OWgY71rAduV 
+    
 
     #- name: 'Az CLI login'
     #  uses: azure/login@v1
@@ -45,10 +40,10 @@ jobs:
       run: |
         az account show
         az group list
-        pwd 
+        
 
-    #- name: Checkout
-    #  uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
     #- name: Setup Terraform
     #  uses: hashicorp/setup-terraform@v2
