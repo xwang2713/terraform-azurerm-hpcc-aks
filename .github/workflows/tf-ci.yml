@@ -18,9 +18,16 @@ jobs:
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+        client-id: 025881d1-4538-4bee-8194-b1d89351603e
+        tenant-id: bc877e61-f6cf-4461-accd-0565fa4ca357
+        subscription-id: Dqf8Q~L8pwiJ~AN8XLxYVadDCsRD8OWgY71rAduV 
+
+    #- name: 'Az CLI login'
+    #  uses: azure/login@v1
+    #  with:
+    #    client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
 
     - name: 'Run az commands'
       run: |
