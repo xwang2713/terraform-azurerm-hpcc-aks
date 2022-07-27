@@ -57,7 +57,7 @@ module "storage_account" {
   enable_large_file_share   = var.storage.enable_large_file_share
   shared_access_key_enabled = true
   access_list = {
-    "my_ip" = data.http.host_ip.body
+    "my_ip" = data.http.host_ip.responce_body
   }
 
   service_endpoints = local.vnet
