@@ -132,7 +132,8 @@ resource "helm_release" "hpcc" {
   wait_for_jobs              = try(var.hpcc.wait_for_jobs, false)
   lint                       = try(var.hpcc.lint, false)
 
-  values = concat(var.elastic4hpcclogs.enable ? [data.http.elastic4hpcclogs_hpcc_logaccess.body] : [], var.hpcc.expose_eclwatch ? [file("${path.root}/values/esp.yaml")] : [],
+  #data.http.elastic4hpcclogs_hpcc_logaccess.body
+  values = concat(var.elastic4hpcclogs.enable ? [ data.http.elastic4hpcclogs_hpcc_logaccess.response_body] : [], var.hpcc.expose_eclwatch ? [file("${path.root}/values/esp.yaml")] : [],
   [file("${path.root}/values/values-retained-azurefile.yaml")], try([for v in var.hpcc.values : file(v)], []))
 
   dynamic "set" {
