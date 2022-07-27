@@ -52,6 +52,7 @@ jobs:
 
     - name: Apply VNet Terraform
       run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/vnet.tfvars -auto-approve
+      #terraform apply -var='azure = { "tenant_id": "${tenant_id}", "subscription_id" : "${subscription_id}", "client_id": "${client_id}", "client_secret": "${client_secret}" }'
       working-directory: ${{ github.workspace }}/modules/virtual_network
 
     #- name: Initialize SC Terraform
@@ -74,6 +75,7 @@ jobs:
     #  run: |
     #    sleep 60
     #    filed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep "NAME" || true) &&
+    # kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4
         
     #- name: Change test directory permission
     #  run: |
