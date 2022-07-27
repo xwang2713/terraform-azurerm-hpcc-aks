@@ -14,7 +14,7 @@ terraform {
   backend "azurerm" {
     resource_group_name  = "hpcctfstatesci"
     storage_account_name = "tfstatedevopsci"
-    container_name       = "hpcctfbackedci"
-    key                  = "hpcctfdevopsci.tfstate"
+    container_name       = "hpcctfbackendci"
+    key                  = "hpcctfscci.tfstate"
   }
 }
