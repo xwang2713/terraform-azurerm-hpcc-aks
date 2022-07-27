@@ -43,3 +43,12 @@ variable "virtual_network" {
   type        = any
   default     = {}
 }
+
+variable "azure" {
+  description = "Azure login info when using a service principal."
+  type        = map(string)
+  
+  default = {
+    "" = ""
+  }
+}

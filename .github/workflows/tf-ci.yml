@@ -51,7 +51,6 @@ jobs:
       run: |
         cp ${{ github.workspace }}/devops/terraform/vnet-providers.tf \
          ${{ github.workspace }}/modules/virtual_network/providers.tf
-        cat ${{ github.workspace }}/modules/virtual_network/providers.tf
         cp ${{ github.workspace }}/devops/terraform/vnet.tfvars \
          ${{ github.workspace }}/modules/virtual_network/admin.auto.tfvars
 
@@ -62,13 +61,21 @@ jobs:
       run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
       working-directory: ${{ github.workspace }}/modules/virtual_network
 
-    #- name: Initialize SC Terraform
-    #  run: terraform init
-    #  working-directory: modules/storage_account
 
-    #- name: Apply SC Terraform
-    #  run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
-    #  working-directory: ${{ github.workspace }}/modules/storage_account
+    - name: Prepare SC Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/sc-providers.tf \
+         ${{ github.workspace }}/modules/storage_account/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/sc.tfvars \
+         ${{ github.workspace }}/modules/storage_account/admin.auto.tfvars
+
+    - name: Initialize SC Terraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}/modules/storage_account
+
+    - name: Apply SC Terraform
+      run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      working-directory: ${{ github.workspace }}/modules/storage_account
 
     #- name: Initialize HPCC-Platform Terraform
     #  run: terraform init
@@ -103,9 +110,9 @@ jobs:
     #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
     #  working-directory: ${{ github.workspace }}
 
-    #- name: Destroy SC Terraform
-    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
-    #  working-directory: ${{ github.workspace }}/modules/storage_account
+    - name: Destroy SC Terraform
+      run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      working-directory: ${{ github.workspace }}/modules/storage_account
 
     - name: Destroy VNet Terraform
       run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
