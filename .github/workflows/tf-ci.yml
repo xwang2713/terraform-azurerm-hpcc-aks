@@ -65,7 +65,7 @@ jobs:
       #      -var 'azure.subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}' \
       #      -var 'azure.client_id=${{ secrets.AZURE_CLIENT_ID }}' \
       #      -var 'azure.client_secret=${{ secrets.SERVICE_PRINCIPAL_VALUE }}' \
-      @      -auto-approve  
+      #      -auto-approve  
       working-directory: ${{ github.workspace }}/modules/virtual_network
 
     #- name: Initialize SC Terraform
