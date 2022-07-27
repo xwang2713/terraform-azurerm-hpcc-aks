@@ -57,7 +57,8 @@ module "storage_account" {
   enable_large_file_share   = var.storage.enable_large_file_share
   shared_access_key_enabled = true
   access_list = {
-    "my_ip" = data.http.host_ip.body  #data.http.host_ip.response_body
+    "my_ip" = data.http.host_ip.body 
+     #data.http.host_ip.response_body
 
   }
 
