@@ -79,16 +79,24 @@ jobs:
       run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
       working-directory: ${{ github.workspace }}/modules/storage_account
 
-    #- name: Initialize HPCC-Platform Terraform
-    #  run: terraform init
-    #  working-directory: ${{ github.workspace }}
+    - name: Prepare HPCC Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/hpcc-providers.tf \
+         ${{ github.workspace }}/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
+         ${{ github.workspace }}/admin.auto.tfvars
 
-    #- name: Apply HPCC-Platform Terraform
-    #  run: terraform apply -var-file=${{ github.workspace }}/devops/terraform/hpcc.tfvars -auto-approve
-    #  working-directory: ${{ github.workspace }}
+    - name: Initialize HPCC-Platform Terraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}
 
-    #- name : Get EclWatch IP
-    #  run: |
+    - name: Apply HPCC-Platform Terraform
+      run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      working-directory: ${{ github.workspace }}
+
+    - name : Get EclWatch IP
+      run: |
+        kubectl get pod
     #    sleep 60
     #    filed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep "NAME" || true) &&
     # kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4
@@ -108,9 +116,9 @@ jobs:
     #      #/opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
     #      /basic-test/run.sh 20.237.91.89
 
-    #- name: Destroy HPCC-Platform  Terraform
-    #  run: terraform destroy -var-file=${{ github.workspace }}/devops/terraform/sc.tfvars -auto-approve
-    #  working-directory: ${{ github.workspace }}
+    - name: Destroy HPCC-Platform  Terraform
+      run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      working-directory: ${{ github.workspace }}
 
     - name: Destroy SC Terraform
       run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
