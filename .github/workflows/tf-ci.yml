@@ -13,12 +13,12 @@ jobs:
     
   Terraform-CI:
     name: "Terraform CI"
-    #runs-on: ubuntu-20.04
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    #runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: modules/virtual_network
+        #working-directory: modules/virtual_network
     steps:
 
     #- name: Azure CLI script
@@ -42,11 +42,11 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
-      id: setup-terraform
+      #id: setup-terraform
 
     - name: Setup Kubectl
       uses: azure/setup-kubectl@v3
-      id: setup-kubectl
+      #id: setup-kubectl
 
     - name: Prepare VNet Terraform files
       run: |
