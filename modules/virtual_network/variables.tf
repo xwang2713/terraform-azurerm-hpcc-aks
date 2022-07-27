@@ -62,8 +62,7 @@ variable "azure" {
   description = "Azure login info when using a service principal."
   type        = map(string)
   
-  tenant_id       = string
-  subscription_id = string
-  client_id       = string
-  client_secret   = string
+  default = {
+    "" = ""
+  }
 }
