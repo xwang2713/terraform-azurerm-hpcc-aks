@@ -1,5 +1,6 @@
 data "http" "host_ip" {
-  url = "https://ifconfig.me"
+  #url = "https://ifconfig.me"
+  url = "http://ipv4.icanhazip.com"
 }
 
 data "azurerm_subscription" "current" {

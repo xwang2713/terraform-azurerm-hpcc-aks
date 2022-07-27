@@ -5,7 +5,8 @@ data "azurerm_advisor_recommendations" "advisor" {
 }
 
 data "http" "host_ip" {
-  url = "http://ipv4.icanhazip.com"
+  #url = "http://ipv4.icanhazip.com"
+  url = "https://ifconfig.me"
 }
 
 data "azurerm_subscription" "current" {
