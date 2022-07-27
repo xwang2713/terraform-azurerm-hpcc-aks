@@ -56,11 +56,11 @@ module "storage_account" {
   access_tier               = var.storage.access_tier
   enable_large_file_share   = var.storage.enable_large_file_share
   shared_access_key_enabled = true
-  access_list = {
-    "my_ip" = data.http.host_ip.body 
-     #data.http.host_ip.response_body
-
-  }
+  #access_list = {
+  #  "my_ip" = data.http.host_ip.body 
+  #   #data.http.host_ip.response_body
+  #
+  #}
 
   service_endpoints = local.vnet
 }
