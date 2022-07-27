@@ -18,4 +18,11 @@ terraform {
     }
   }
   required_version = ">=0.15.0"
+
+  backend "azurerm" {
+    resource_group_name  = "hpcctfstatesci"
+    storage_account_name = "tfstatedevopsci"
+    container_name       = "hpcctfbackedci"
+    key                  = "hpcctfdevopsci.tfstate"
+  }
 }
