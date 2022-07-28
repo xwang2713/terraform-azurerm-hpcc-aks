@@ -13,8 +13,14 @@ jobs:
     
   Terraform-CI:
     name: "Terraform CI"
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.SECRET_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     runs-on: ubuntu-20.04
     #runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         shell: bash
