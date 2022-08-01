@@ -17,7 +17,8 @@ jobs:
     steps:
     - name: Test Pipe
       run: |
-        echo "name  10.243.22.10" | grep 10.243
+        msg=$(echo "name  10.243.22.10" | grep 10.243)
+        echo "get $msg"
 
     
   #Terraform-CI:
