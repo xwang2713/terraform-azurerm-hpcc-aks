@@ -20,10 +20,10 @@ jobs:
         hostname
         echo "Test ..."
         msg=$(echo "name   10.243.22.10" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 2)
-        if [ "$msg" != "" ]; then
-          echo "failed"
-          exit 1
-        end
+        #if [ "$msg" != "" ]; then
+        #  echo "failed"
+        #  exit 1
+        #end
         echo "get $msg"
         echo "msg=$msg" >> $GITHUB_ENV
 
