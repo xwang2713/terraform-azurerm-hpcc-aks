@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       name: Test Pipe
-      run:|
-        echo "name  10.243.22.10" | grep 10.244
+      run: |
+        echo "name  10.243.22.10" | grep 10.243
 
     
   Terraform-CI:
