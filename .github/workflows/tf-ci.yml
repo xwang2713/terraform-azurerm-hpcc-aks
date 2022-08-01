@@ -21,6 +21,11 @@ jobs:
         echo "Test ..."
         msg=$(echo "name  10.243.22.10" | grep 10.243)
         echo "get $msg"
+        echo "msg=$msg" >> $GITHUB_ENV
+
+    - name: Test save variable
+        echo "get 2: $msg"
+        echo "env: ${{ env.msg }}"
 
     
   #Terraform-CI:
