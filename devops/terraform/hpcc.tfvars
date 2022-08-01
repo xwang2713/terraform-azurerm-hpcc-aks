@@ -199,7 +199,8 @@ auto_connect = true
 # disable_naming_conventions = true 
 
 # auto_launch_eclwatch - Automatically launch ECLWatch web interface.
-auto_launch_eclwatch = true
+#auto_launch_eclwatch = true
+auto_launch_eclwatch = false
 
 /*
   # Provide an existing virtual network deployed outside of this project

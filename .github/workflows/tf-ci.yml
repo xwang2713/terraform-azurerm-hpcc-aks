@@ -10,6 +10,15 @@ permissions:
         id-token: 'write'
 
 jobs:    
+
+  Test-Shell:
+    name: "Test Bash"
+    runs-on: ubuntu-20.04
+    steps:
+      name: Test Pipe
+      run:|
+        echo "name  10.243.22.10" | grep 10.244
+
     
   Terraform-CI:
     name: "Terraform CI"
