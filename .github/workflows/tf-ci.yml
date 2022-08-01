@@ -11,156 +11,163 @@ permissions:
 
 jobs:    
 
-  Test-Shell:
-    name: "Test Bash"
+#  Test-Shell:
+#    name: "Test Bash"
+#    runs-on: ubuntu-20.04
+#    steps:
+#    - name: Test Pipe
+#      run: |
+#        hostname
+#        echo "Test ..."
+#        msg=$(echo "name   10.243.22.10" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 2)
+#        #if [ "$msg" != "" ]; then
+#        #  echo "failed"
+#        #  exit 1
+#        #end
+#        echo "get $msg"
+#        echo "msg=$msg" >> $GITHUB_ENV
+
+#    - name: Test save variable
+#      run: |
+#        echo "get 2: $msg"
+#        echo "env: ${{ env.msg }}"
+
+    
+  Terraform-CI:
+    name: "Terraform CI"
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     runs-on: ubuntu-20.04
+    #runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+        #working-directory: modules/virtual_network
     steps:
-    - name: Test Pipe
-      run: |
-        hostname
-        echo "Test ..."
-        msg=$(echo "name   10.243.22.10" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 2)
-        #if [ "$msg" != "" ]; then
-        #  echo "failed"
-        #  exit 1
-        #end
-        echo "get $msg"
-        echo "msg=$msg" >> $GITHUB_ENV
 
-    - name: Test save variable
-      run: |
-        echo "get 2: $msg"
-        echo "env: ${{ env.msg }}"
-
-    
-  #Terraform-CI:
-  #  name: "Terraform CI"
-  #  env:
-  #    ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #    ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
-  #    ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #    ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #  runs-on: ubuntu-20.04
-  #  #runs-on: ubuntu-latest
-  #  environment: production
-  #  defaults:
-  #    run:
-  #      shell: bash
-  #      #working-directory: modules/virtual_network
-  #  steps:
-
-  #  #- name: Azure CLI script
-  #  #  uses: azure/CLI@v1
-  #  #  with:
-  #  #    inlineScript: |
-  #  #      az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
-  #  #        -p ${{ secrets.SERVICE_PRINCIPAL_VALUE }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+    #- name: Azure CLI script
+    #  uses: azure/CLI@v1
+    #  with:
+    #    inlineScript: |
+    #      az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
+    #        -p ${{ secrets.SERVICE_PRINCIPAL_VALUE }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
     
 
-  #  #- name: 'Az CLI login'
-  #  #  uses: azure/login@v1
-  #  #  with:
-  #  #    client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #  #    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #  #    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+    #- name: 'Az CLI login'
+    #  uses: azure/login@v1
+    #  with:
+    #    client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
         
-  #  - name: Checkout
-  #    uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
-  #  - name: Setup Terraform
-  #    uses: hashicorp/setup-terraform@v2
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
       #id: setup-terraform
 
-  #  - name: Setup Kubectl
-  #    uses: azure/setup-kubectl@v3
-  #    #id: setup-kubectl
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      #id: setup-kubectl
 
-  #  - name: Prepare VNet Terraform files
-  #    run: |
-  #      cp ${{ github.workspace }}/devops/terraform/vnet-providers.tf \
-  #       ${{ github.workspace }}/modules/virtual_network/providers.tf
-  #      cp ${{ github.workspace }}/devops/terraform/vnet.tfvars \
-  #       ${{ github.workspace }}/modules/virtual_network/admin.auto.tfvars
+    - name: Prepare VNet Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/vnet-providers.tf \
+         ${{ github.workspace }}/modules/virtual_network/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/vnet.tfvars \
+         ${{ github.workspace }}/modules/virtual_network/admin.auto.tfvars
 
-  #  - name: Initialize VNet erraform
-  #    run: terraform init
-  #    working-directory: ${{ github.workspace }}/modules/virtual_network
+    - name: Initialize VNet erraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}/modules/virtual_network
 
-  #  - name: Apply VNet Terraform
+    - name: Apply VNet Terraform
+      run: terraform apply  -auto-approve
   #    run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}/modules/virtual_network
+      working-directory: ${{ github.workspace }}/modules/virtual_network
 
 
-  #  - name: Prepare SC Terraform files
-  #    run: |
-  #      cp ${{ github.workspace }}/devops/terraform/sc-providers.tf \
-  #       ${{ github.workspace }}/modules/storage_account/providers.tf
-  #      cp ${{ github.workspace }}/devops/terraform/sc.tfvars \
-  #       ${{ github.workspace }}/modules/storage_account/admin.auto.tfvars
+    - name: Prepare SC Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/sc-providers.tf \
+         ${{ github.workspace }}/modules/storage_account/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/sc.tfvars \
+         ${{ github.workspace }}/modules/storage_account/admin.auto.tfvars
 
-  #  - name: Initialize SC Terraform
-  #    run: terraform init
-  #    working-directory: ${{ github.workspace }}/modules/storage_account
+    - name: Initialize SC Terraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}/modules/storage_account
 
-  #  - name: Apply SC Terraform
+    - name: Apply SC Terraform
+      run: terraform apply  -auto-approve
   #    run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}/modules/storage_account
+      working-directory: ${{ github.workspace }}/modules/storage_account
 
-  #  - name: Prepare HPCC Terraform files
-  #    run: |
-  #      cp ${{ github.workspace }}/devops/terraform/hpcc-providers.tf \
-  #       ${{ github.workspace }}/providers.tf
-  #      cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
-  #       ${{ github.workspace }}/admin.auto.tfvars
+    - name: Prepare HPCC Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/hpcc-providers.tf \
+         ${{ github.workspace }}/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
+         ${{ github.workspace }}/admin.auto.tfvars
 
-  #  - name: Initialize HPCC-Platform Terraform
-  #    run: terraform init
-  #    working-directory: ${{ github.workspace }}
+    - name: Initialize HPCC-Platform Terraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}
 
-  #  - name: Apply HPCC-Platform Terraform
+    - name: Apply HPCC-Platform Terraform
+      run: terraform apply  -auto-approve
   #    run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}
+      working-directory: ${{ github.workspace }}
 
-  #  - name : Get EclWatch IP
-  #    run: |
-  #      kubectl get pod
-  #  #    sleep 60
-  #  #    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
-  #  #    if [ "$failed_pods" != "" ]; then
-  #  #       echo "Pods not ready:"
-  #  #       echo "$failed_pods"
-  #  #       exit 1
-  #  #    end 
-  #  #    eclwatch_ip=(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
-  #  #    echo "ECLWATCH_IP=${eclwatch_ip} >> $GITHUB_ENV
+    - name : Get EclWatch IP
+      run: |
+        kubectl get pod
+    #    sleep 60
+    #    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
+    #    if [ "$failed_pods" != "" ]; then
+    #       echo "Pods not ready:"
+    #       echo "$failed_pods"
+    #       exit 1
+    #    end 
+    #    eclwatch_ip=(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
+    #    echo "ECLWATCH_IP=${eclwatch_ip} >> $GITHUB_ENV
+    #    echo "ECLWATCH_IP: ${{ env.ECLWATCH }}"
         
-  #  #- name: Change test directory permission
-  #  #  run: |
-  #      #echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-  #      #echo "github.workspace: ${{ github.workspace }} "
-  #      #chmod 777 ${{ github.workspace }}/devops/test/basic
+    #- name: Change test directory permission
+    #  run: |
+        #echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        #echo "github.workspace: ${{ github.workspace }} "
+        #chmod 777 ${{ github.workspace }}/devops/test/basic
 
-  #  #- name: Run ECL Test
-  #  #  uses: addnab/docker-run-action@v3
-  #  #  with:
-  #  #    image: hpccsystems/platform-core:latest
-  #  #    options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
-  #  #    run: |
-  #  #      #/opt/HPCCSystems/bin/ecl run  -s 20.237.91.89 hthor /basic-test/simple.ecl
-  #  #      /basic-test/run.sh 20.237.91.89
+    #- name: Run ECL Test
+    #  uses: addnab/docker-run-action@v3
+    #  with:
+    #    image: hpccsystems/platform-core:latest
+    #    options: --rm -v ${{ github.workspace }}/devops/test/basic:/basic-test
+    #    run: |
+    #      #/opt/HPCCSystems/bin/ecl run  -s ${{ env.ECLWATCH_IP }} hthor /basic-test/simple.ecl
+    #      /basic-test/run.sh ${{ env.ECLWATCH_IP }}
 
-  #  - name: Destroy HPCC-Platform  Terraform
-  #    if: ${{ failure() }}
+    - name: Destroy HPCC-Platform  Terraform
+      if: ${{ failure() }}
+      run: terraform destroy -auto-approve
   #    run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}
+      working-directory: ${{ github.workspace }}
 
-  #  - name: Destroy SC Terraform
-  #    if: ${{ failure() }}
+    - name: Destroy SC Terraform
+      if: ${{ failure() }}
+      run: terraform destroy -auto-approve
   #    run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}/modules/storage_account
+      working-directory: ${{ github.workspace }}/modules/storage_account
 
-  #  - name: Destroy VNet Terraform
-  #    if: ${{ failure() }}
+    - name: Destroy VNet Terraform
+      if: ${{ failure() }}
+      run: terraform destroy -auto-approve
   #    run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
-  #    working-directory: ${{ github.workspace }}/modules/virtual_network
+      working-directory: ${{ github.workspace }}/modules/virtual_network

@@ -1,5 +1,3 @@
-provider "random" {
-}
 provider "azurerm" {
   tenant_id       = var.azure.tenant_id
   subscription_id = var.azure.subscription_id
@@ -7,4 +5,27 @@ provider "azurerm" {
   client_secret   = var.azure.client_secret
 
   features {}
+}
+
+provider "kubernetes" {
+  host                   = module.kubernetes.kube_config.host
+  client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+  client_key             = base64decode(module.kubernetes.kube_config.client_key)
+  cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "kubelogin"
+    args        = ["get-token", "--login", "spn", "--server-id", var.azure.SERVER_ID, "--environment", "AzurePublicCloud", "--tenant-id", var.azure.TENANT_ID]
+    env         = local.k8s_exec_auth_env
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.kubernetes.kube_config.host
+    client_certificate     = base64decode(module.kubernetes.kube_config.client_certificate)
+    client_key             = base64decode(module.kubernetes.kube_config.client_key)
+    cluster_ca_certificate = base64decode(module.kubernetes.kube_config.cluster_ca_certificate)
+  }
 }
