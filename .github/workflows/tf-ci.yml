@@ -24,6 +24,7 @@ jobs:
         echo "msg=$msg" >> $GITHUB_ENV
 
     - name: Test save variable
+      run: |
         echo "get 2: $msg"
         echo "env: ${{ env.msg }}"
 
