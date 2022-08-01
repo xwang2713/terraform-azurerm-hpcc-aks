@@ -221,10 +221,10 @@ registry = {
 }
 */
 
-azure = {
-  TENANT_ID = "${{ secrets.AZURE_TENANT_ID }}"
-  SUBSCRIPTION_ID = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-  AAD_SERVICE_PRINCIPAL_CLIENT_ID = "${{ secrets.AZURE_CLIENT_ID }}"
-  AAD_SERVICE_PRINCIPAL_CLIENT_SECRET = "${{ secrets.SERVICE_PRINCIPAL_VALUE }}"
-  SERVER_ID = "${{ secrets.SERVER_ID }}"
-}
+#azure = {
+#  TENANT_ID = "${{ secrets.AZURE_TENANT_ID }}"
+#  SUBSCRIPTION_ID = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+#  AAD_SERVICE_PRINCIPAL_CLIENT_ID = "${{ secrets.AZURE_CLIENT_ID }}"
+#  AAD_SERVICE_PRINCIPAL_CLIENT_SECRET = "${{ secrets.SERVICE_PRINCIPAL_VALUE }}"
+#  SERVER_ID = "${{ secrets.SERVER_ID }}"
+#}
