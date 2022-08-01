@@ -20,6 +20,10 @@ jobs:
         hostname
         echo "Test ..."
         msg=$(echo "name   10.243.22.10" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 2)
+        if [ "$msg" != "" ]; then
+          echo "failed"
+          exit 1
+        end
         echo "get $msg"
         echo "msg=$msg" >> $GITHUB_ENV
 
@@ -122,8 +126,14 @@ jobs:
   #    run: |
   #      kubectl get pod
   #  #    sleep 60
-  #  #    filed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep "NAME" || true) &&
-  #  # kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4
+  #  #    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
+  #  #    if [ "$failed_pods" != "" ]; then
+  #  #       echo "Pods not ready:"
+  #  #       echo "$failed_pods"
+  #  #       exit 1
+  #  #    end 
+  #  #    eclwatch_ip=(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
+  #  #    echo "ECLWATCH_IP=${eclwatch_ip} >> $GITHUB_ENV
         
   #  #- name: Change test directory permission
   #  #  run: |
