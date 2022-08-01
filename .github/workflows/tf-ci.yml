@@ -17,6 +17,8 @@ jobs:
     steps:
     - name: Test Pipe
       run: |
+        hostname
+        echo "Test ..."
         msg=$(echo "name  10.243.22.10" | grep 10.243)
         echo "get $msg"
 
