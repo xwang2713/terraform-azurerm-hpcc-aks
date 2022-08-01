@@ -3,7 +3,6 @@ provider "azurerm" {
   subscription_id = var.azure.subscription_id
   client_id       = var.azure.client_id
   client_secret   = var.azure.client_secret
-  server_id       = var.azure.server_id
 
   features {}
 }
