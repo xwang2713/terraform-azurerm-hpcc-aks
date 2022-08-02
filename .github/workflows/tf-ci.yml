@@ -122,7 +122,7 @@ jobs:
     - name: Prepare HPCC Terraform files
       run: |
         cp ${{ github.workspace }}/devops/terraform/hpcc-versions.tf \
-         ${{ github.workspace }}/providers.tf
+         ${{ github.workspace }}/versions.tf
         cp ${{ github.workspace }}/devops/terraform/hpcc-versions.tf \
          ${{ github.workspace }}/providers.tf
         cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
