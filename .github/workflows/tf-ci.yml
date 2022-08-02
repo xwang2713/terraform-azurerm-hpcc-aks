@@ -116,6 +116,8 @@ jobs:
          ${{ github.workspace }}/providers.tf
         cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
          ${{ github.workspace }}/admin.auto.tfvars
+        cp ${{ github.workspace }}/devops/terraform/hpcc-locals.tf \
+         ${{ github.workspace }}/locals.tf
 
     - name: Initialize HPCC-Platform Terraform
       run: terraform init

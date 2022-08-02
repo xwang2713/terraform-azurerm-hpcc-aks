@@ -23,4 +23,9 @@ locals {
   web_urls      = { auto_launch_eclwatch = "http://$(kubectl get svc --field-selector metadata.name=eclwatch | awk 'NR==2 {print $4}'):8010" }
   is_windows_os = substr(pathexpand("~"), 0, 1) == "/" ? false : true
 
+  k8s_exec_auth_env = {
+    AAD_SERVICE_PRINCIPAL_CLIENT_ID     = var.azure.client_id
+    AAD_SERVICE_PRINCIPAL_CLIENT_SECRET = var.azure.client_secret
+  }
+
 }
