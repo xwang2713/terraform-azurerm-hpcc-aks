@@ -73,17 +73,19 @@ jobs:
       uses: hashicorp/setup-terraform@v2
       #id: setup-terraform
 
-    - name: Setup Kubectl
-      uses: azure/setup-kubectl@v3
-      #id: setup-kubectl
+    #- name: Setup Kubectl
+    #  uses: azure/setup-kubectl@v3
+    #  #id: setup-kubectl
 
-    - name: Setup kubelgoin
-      run: |
-        sudo az aks install-cli
+    #- name: Setup kubelgoin
+    #  run: |
+    #    sudo az aks install-cli
 
 
     - name: Prepare VNet Terraform files
       run: |
+        cp ${{ github.workspace }}/devops/terraform/vnet-versions.tf \
+         ${{ github.workspace }}/modules/virtual_network/versions.tf
         cp ${{ github.workspace }}/devops/terraform/vnet-providers.tf \
          ${{ github.workspace }}/modules/virtual_network/providers.tf
         cp ${{ github.workspace }}/devops/terraform/vnet.tfvars \
@@ -101,6 +103,8 @@ jobs:
 
     - name: Prepare SC Terraform files
       run: |
+        cp ${{ github.workspace }}/devops/terraform/sc-versions.tf \
+         ${{ github.workspace }}/modules/storage_account/versions.tf
         cp ${{ github.workspace }}/devops/terraform/sc-providers.tf \
          ${{ github.workspace }}/modules/storage_account/providers.tf
         cp ${{ github.workspace }}/devops/terraform/sc.tfvars \
@@ -117,7 +121,9 @@ jobs:
 
     - name: Prepare HPCC Terraform files
       run: |
-        cp ${{ github.workspace }}/devops/terraform/hpcc-providers.tf \
+        cp ${{ github.workspace }}/devops/terraform/hpcc-versions.tf \
+         ${{ github.workspace }}/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/hpcc-versions.tf \
          ${{ github.workspace }}/providers.tf
         cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
          ${{ github.workspace }}/admin.auto.tfvars
