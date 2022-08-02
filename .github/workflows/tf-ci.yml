@@ -77,9 +77,9 @@ jobs:
     #  uses: azure/setup-kubectl@v3
     #  #id: setup-kubectl
 
-    #- name: Setup kubelgoin
-    #  run: |
-    #    sudo az aks install-cli
+    - name: Setup kubelgoin
+      run: |
+        sudo az aks install-cli
 
 
     - name: Prepare VNet Terraform files
