@@ -16,7 +16,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "kubelogin"
-    args        = ["get-token", "--login", "spn", "--server-id", var.azure.SERVER_ID, "--environment", "AzurePublicCloud", "--tenant-id", var.azure.TENANT_ID]
+    args        = ["get-token", "--login", "spn", "--server-id", var.azure.server_id, "--environment", "AzurePublicCloud", "--tenant-id", var.azure.tenant_id]
     env         = local.k8s_exec_auth_env
   }
 }
