@@ -149,7 +149,8 @@ jobs:
     #       echo "$failed_pods"
     #       exit 1
     #    end 
-    #    eclwatch_ip=(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
+    #    #eclwatch_ip=$(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
+    #    eclwatch_ip=$(kubectl get svc --field-selector metadata.name=eclwatch | awk 'NR==2 {print $4}')
     #    echo "ECLWATCH_IP=${eclwatch_ip} >> $GITHUB_ENV
     #    echo "ECLWATCH_IP: ${{ env.ECLWATCH }}"
         
