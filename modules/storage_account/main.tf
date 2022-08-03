@@ -43,7 +43,8 @@ module "resource_group" {
 }
 
 module "storage_account" {
-  source = "github.com/Azure-Terraform/terraform-azurerm-storage-account.git?ref=v0.12.1"
+  #source = "github.com/Azure-Terraform/terraform-azurerm-storage-account.git?ref=v0.12.1"
+  source = "github.com/Azure-Terraform/terraform-azurerm-storage-account.git?ref=v0.14.1"
 
   name                = lower(try("${var.admin.name}hpccsa${random_integer.random.result}", "hpccsa${random_integer.random.result}404"))
   resource_group_name = module.resource_group.name
