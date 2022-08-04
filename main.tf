@@ -1,11 +1,6 @@
 resource "random_uuid" "user_assigned_identity" {
 }
-user_assigned_identity = { 
-    id = random_uuid.user_assigned_identity.result
-    #principal_id = var.azure.service_principal_id
-    principal_id = var.azure.secret_id
-    client_id    = var.azure.client_id
-}
+
 
 resource "random_integer" "int" {
   min = 1
@@ -82,6 +77,13 @@ module "kubernetes" {
   node_pools = var.node_pools
 
   default_node_pool = "system" //name of the sub-key, which is the default node pool.
+
+  user_assigned_identity = { 
+    id = random_uuid.user_assigned_identity.result
+    #principal_id = var.azure.service_principal_id
+    principal_id = var.azure.secret_id
+    client_id    = var.azure.client_id
+  }
 
 }
 
