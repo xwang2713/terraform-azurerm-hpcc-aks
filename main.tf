@@ -81,7 +81,7 @@ module "kubernetes" {
   user_assigned_identity = { 
     id = random_uuid.user_assigned_identity.result
     #principal_id = var.azure.service_principal_id
-    principal_id = var.azure.secret_id
+    principal_id = var.azure.object_id
     client_id    = var.azure.client_id
   }
 
