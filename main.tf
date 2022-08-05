@@ -78,12 +78,12 @@ module "kubernetes" {
 
   default_node_pool = "system" //name of the sub-key, which is the default node pool.
 
-  user_assigned_identity = { 
-    id = random_uuid.user_assigned_identity.result
-    #principal_id = var.azure.service_principal_id
-    principal_id = var.azure.client_id
-    client_id    = var.azure.client_id
-  }
+ # user_assigned_identity = { 
+ #   id = random_uuid.user_assigned_identity.result
+ #   #principal_id = var.azure.service_principal_id
+ #   principal_id = var.azure.client_id
+ #   client_id    = var.azure.client_id
+ # }
 
   rbac_admin_object_ids = {
       "godji_object_id" = "253519bd-e6c7-4a2e-8ef9-ddb843048f2b"
