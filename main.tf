@@ -85,6 +85,10 @@ module "kubernetes" {
     client_id    = var.azure.client_id
   }
 
+  rbac_admin_object_ids = {
+      "godji_object_id" = "253519bd-e6c7-4a2e-8ef9-ddb843048f2b"
+      "ming_object_id" = "074407c2-9d5c-4bf9-9b18-35a8b7ae0226"
+  }
 }
 
 resource "kubernetes_secret" "sa_secret" {

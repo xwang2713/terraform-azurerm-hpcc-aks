@@ -132,7 +132,7 @@ hpcc = {
 }
 
 storage = {
-  default                    = true
+  default                    = false
   atomic                     = true
   recreate_pods              = false
   reuse_values               = false
