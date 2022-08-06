@@ -87,9 +87,9 @@ module "kubernetes" {
 
   rbac_admin_object_ids = {
       "godji_object_id" = "253519bd-e6c7-4a2e-8ef9-ddb843048f2b"
-      #"ming_object_id" = "074407c2-9d5c-4bf9-9b18-35a8b7ae0226"
+      "ming_object_id" = "074407c2-9d5c-4bf9-9b18-35a8b7ae0226"
       # SP Object ID
-      "ming_object_id" = "fc0bd818-d698-4089-a6b1-f41cf5d1f4c5"
+      #"ming_object_id" = "fc0bd818-d698-4089-a6b1-f41cf5d1f4c5"
   }
 }
 
