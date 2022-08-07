@@ -14,7 +14,7 @@ locals {
   tags            = var.disable_naming_conventions ? merge(var.tags, { "admin" = var.admin.name, "email" = var.admin.email }) : merge(module.metadata.tags, { "admin" = var.admin.name, "email" = var.admin.email }, try(var.tags))
   virtual_network = can(var.virtual_network.private_subnet_id) && can(var.virtual_network.public_subnet_id) && can(var.virtual_network.route_table_id) ? var.virtual_network : data.external.vnet[0].result
   cluster_name    = "${local.names.resource_group_type}-${local.names.product_name}-terraform-${local.names.location}-${var.admin.name}${random_integer.int.result}-${terraform.workspace}"
-  storage_account = can(var.storage.storage_account.resource_group_name) && can(var.storage.storage_account.name) && can(var.storage.storage_account.location) ? var.storage.storage_account : data.external.sa[0].result
+  #storage_account = can(var.storage.storage_account.resource_group_name) && can(var.storage.storage_account.name) && can(var.storage.storage_account.location) ? var.storage.storage_account : data.external.sa[0].result
 
   hpcc_chart_major_minor_point_version = can(var.hpcc.chart_version) ? regex("[\\d+?.\\d+?.\\d+?]+", var.hpcc.chart_version) : "master"
   elastic4hpcclogs_hpcc_logaccess      = "https://raw.githubusercontent.com/hpcc-systems/helm-chart/${local.hpcc_chart_major_minor_point_version}/helm/managed/logging/elastic/elastic4hpcclogs-hpcc-logaccess.yaml"
