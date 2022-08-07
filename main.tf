@@ -153,7 +153,8 @@ resource "helm_release" "hpcc" {
 
   #data.http.elastic4hpcclogs_hpcc_logaccess.body
   values = concat(var.elastic4hpcclogs.enable ? [ data.http.elastic4hpcclogs_hpcc_logaccess.response_body] : [], var.hpcc.expose_eclwatch ? [file("${path.root}/values/esp.yaml")] : [],
-  [file("${path.root}/values/values-retained-azurefile.yaml")], try([for v in var.hpcc.values : file(v)], []))
+  [file("${path.root}/values/values-auto-azurefile.yaml")], try([for v in var.hpcc.values : file(v)], []))
+  #[file("${path.root}/values/values-retained-azurefile.yaml")], try([for v in var.hpcc.values : file(v)], []))
 
   dynamic "set" {
     for_each = can(var.hpcc.image_root) ? [1] : []
@@ -188,8 +189,8 @@ resource "helm_release" "hpcc" {
   }
 
   depends_on = [
-    helm_release.elastic4hpcclogs,
-    helm_release.storage,
+    #helm_release.elastic4hpcclogs,
+    #helm_release.storage,
     module.kubernetes
   ]
 }
