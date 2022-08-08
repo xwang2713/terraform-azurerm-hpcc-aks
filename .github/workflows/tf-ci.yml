@@ -43,7 +43,7 @@ jobs:
       ARM_SERVER_ID: ${{ secrets.SERVER_ID }}
     runs-on: ubuntu-20.04
     #runs-on: ubuntu-latest
-    environment: production
+    environment: dev
     defaults:
       run:
         shell: bash
