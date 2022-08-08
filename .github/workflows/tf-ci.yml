@@ -88,13 +88,13 @@ jobs:
       uses: hashicorp/setup-terraform@v2
       #id: setup-terraform
 
-    #- name: Setup Kubectl
-    #  uses: azure/setup-kubectl@v3
-    #  #id: setup-kubectl
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      #id: setup-kubectl
 
-    - name: Setup kubelgoin
-      run: |
-        sudo az aks install-cli
+    #- name: Setup kubelgoin
+    #  run: |
+    #    sudo az aks install-cli
 
 
     - name: Prepare VNet Terraform files
@@ -156,6 +156,7 @@ jobs:
 
     - name : Get EclWatch IP
       run: |
+        kubectl get nodes
         kubectl get pod
     ##    sleep 60
     ##    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
