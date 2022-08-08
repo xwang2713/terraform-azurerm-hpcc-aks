@@ -155,6 +155,7 @@ jobs:
       working-directory: ${{ github.workspace }}
 
     - name : Get EclWatch IP
+      if: always()
       run: |
         kubectl get nodes
         kubectl get pod
