@@ -190,8 +190,8 @@ elastic4hpcclogs = {
 expose_services = true
 
 # auto_connect - Automatically connect to the kubernetes cluster from the host machine.
-#auto_connect = true
-auto_connect = false
+auto_connect = true
+#auto_connect = false
 
 # disable_helm - Disable Helm deployments by Terraform. This is reserved for experimentation with other deployment tools like Flux2.
 # disable_helm = false 
