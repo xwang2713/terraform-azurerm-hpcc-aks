@@ -163,7 +163,7 @@ jobs:
         kubectl get pod
         eclwatch_ip=$(kubectl get svc --field-selector metadata.name=eclwatch | awk 'NR==2 {print $4}')
         echo "ECLWATCH_IP=${eclwatch_ip}" >> $GITHUB_ENV
-        echo "ECLWATCH_IP: ${{ env.ECLWATCH }}"
+        echo "ECLWATCH_IP: ${{ env.ECLWATCH_IP }}"
     #    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
     #    if [ "$failed_pods" != "" ]; then
     #       echo "Pods not ready:"
