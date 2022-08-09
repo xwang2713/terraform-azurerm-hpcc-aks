@@ -3,7 +3,7 @@ name: Terraform Continue Integration
 on:
   push:
     branches:
-    - 'az-devops'
+    - 'main'
 
 permissions:
         contents: read
@@ -11,28 +11,6 @@ permissions:
 
 jobs:    
 
-#  Test-Shell:
-#    name: "Test Bash"
-#    runs-on: ubuntu-20.04
-#    steps:
-#    - name: Test Pipe
-#      run: |
-#        hostname
-#        echo "Test ..."
-#        msg=$(echo "name   10.243.22.10" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 2)
-#        #if [ "$msg" != "" ]; then
-#        #  echo "failed"
-#        #  exit 1
-#        #end
-#        echo "get $msg"
-#        echo "msg=$msg" >> $GITHUB_ENV
-
-#    - name: Test save variable
-#      run: |
-#        echo "get 2: $msg"
-#        echo "env: ${{ env.msg }}"
-
-    
   Terraform-CI:
     name: "Terraform CI"
     env:
@@ -47,7 +25,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        #working-directory: modules/virtual_network
     steps:
 
     - name: Public IP
@@ -59,14 +36,6 @@ jobs:
         echo ${{ steps.ip.outputs.ipv4 }}
         echo ${{ steps.ip.outputs.ipv6 }}
 
-    #- name: Azure CLI script
-    #  uses: azure/CLI@v1
-    #  with:
-    #    inlineScript: |
-    #      az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
-    #        -p ${{ secrets.SERVICE_PRINCIPAL_VALUE }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
-    
 
     - name: 'Az CLI login'
       uses: azure/login@v1
@@ -74,12 +43,6 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
-
-    #- name: 'Run Azure CLI commands'
-    #  run: |
-    #      az account show
-    #      az group list
-    #      pwd 
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -91,11 +54,6 @@ jobs:
     - name: Setup Kubectl
       uses: azure/setup-kubectl@v3
       #id: setup-kubectl
-
-    #- name: Setup kubelgoin
-    #  run: |
-    #    sudo az aks install-cli
-
 
     - name: Prepare VNet Terraform files
       run: |
@@ -112,7 +70,6 @@ jobs:
 
     - name: Apply VNet Terraform
       run: terraform apply  -auto-approve
-      #run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
       working-directory: ${{ github.workspace }}/modules/virtual_network
 
 
@@ -131,7 +88,7 @@ jobs:
 
     - name: Apply SC Terraform
       run: terraform apply  -auto-approve
-    #  run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+    
       working-directory: ${{ github.workspace }}/modules/storage_account
 
     - name: Prepare HPCC Terraform files
@@ -191,17 +148,18 @@ jobs:
     - name: Destroy HPCC-Platform  Terraform
       if: always()
       run: terraform destroy -auto-approve
-    #  run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}", "server_id":"${{ secrets.SERVER_ID }}","object_id":"${{ secrets.OBJECT_ID }}" }' -auto-approve
       working-directory: ${{ github.workspace }}
 
     - name: Destroy SC Terraform
       if: always()
-      run: terraform destroy -auto-approve
-    #  run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      run: |
+        terraform destroy -auto-approve
+      #  terraform state rm 'storage_account'
       working-directory: ${{ github.workspace }}/modules/storage_account
 
     - name: Destroy VNet Terraform
       if: always()
-      run: terraform destroy -auto-approve
-    #  run: terraform destroy -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}" }' -auto-approve
+      run: |
+        terraform destroy -auto-approve
+      #  terraform state rm 'module.virtual_network'
       working-directory: ${{ github.workspace }}/modules/virtual_network
