@@ -3,7 +3,7 @@ name: Terraform Continue Integration
 on:
   push:
     branches:
-    - 'main'
+    - 'az-devops'
 
 permissions:
         contents: read
@@ -13,12 +13,12 @@ jobs:
 
   Terraform-CI:
     name: "Terraform CI"
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      ARM_SERVER_ID: ${{ secrets.SERVER_ID }}
+    #env:
+    #  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    #  ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
+    #  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    #  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    #  ARM_SERVER_ID: ${{ secrets.SERVER_ID }}
     runs-on: ubuntu-20.04
     #runs-on: ubuntu-latest
     environment: dev
@@ -27,14 +27,14 @@ jobs:
         shell: bash
     steps:
 
-    - name: Public IP
-      id: ip
-      uses: haythem/public-ip@v1.2
+    #- name: Public IP
+    #  id: ip
+    #  uses: haythem/public-ip@v1.2
 
-    - name: Print Public IP
-      run: |
-        echo ${{ steps.ip.outputs.ipv4 }}
-        echo ${{ steps.ip.outputs.ipv6 }}
+    #- name: Print Public IP
+    #  run: |
+    #    echo ${{ steps.ip.outputs.ipv4 }}
+    #    echo ${{ steps.ip.outputs.ipv6 }}
 
 
     - name: 'Az CLI login'
