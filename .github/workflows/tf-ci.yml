@@ -147,7 +147,9 @@ jobs:
 
     - name: Destroy HPCC-Platform  Terraform
       if: always()
-      run: terraform destroy -auto-approve
+      run: |
+        sleep 60
+        terraform destroy -auto-approve
       working-directory: ${{ github.workspace }}
 
     - name: Destroy SC Terraform

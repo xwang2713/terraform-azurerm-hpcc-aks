@@ -3,6 +3,7 @@
 ## Service Principal
 Create a Service Principal if don't have one which should have at least following entries:
 - Application (Client) ID
+- Value (Client Secret)
 - Tenant ID
 
 Also need Subscription ID which should be found in Azure Subscription
@@ -10,6 +11,7 @@ Also need Subscription ID which should be found in Azure Subscription
 ### Github Secrets
 Normally you should save "Client ID", "Tenant ID" and "Subscription ID" to github secrets: from <github reop>/settings/secrets/action create
 - AZURE_CLIENT_ID
+- AZURE_CLIENT_SECRET
 - AZURE_TENANT_ID
 - AZURE_SUBSCRIPTION_ID
 
@@ -32,6 +34,11 @@ jobs:
 
   Terraform-CI:
     name: "Terraform CI"
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     runs-on: ubuntu-20.04
     environment: dev
     defaults:
