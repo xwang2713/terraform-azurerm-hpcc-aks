@@ -49,8 +49,8 @@ module "kubernetes" {
   resource_group_name = module.resource_group.name
   identity_type       = "UserAssigned" # Allowed values: UserAssigned or SystemAssigned
   rbac = {
-    enabled        = false
-    ad_integration = false
+    enabled        = true
+    ad_integration = true
   }
 
   network_plugin         = "azure"

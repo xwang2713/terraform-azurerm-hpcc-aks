@@ -1,0 +1,165 @@
+name: Terraform Continuous Integration
+
+on:
+  push:
+    branches:
+    - 'HPCC-28035-tf-ci'
+
+permissions:
+        contents: read
+        id-token: write
+
+jobs:
+
+  Terraform-CI:
+    name: "Terraform CI"
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.SERVICE_PRINCIPAL_VALUE }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      #ARM_SERVER_ID: ${{ secrets.SERVER_ID }}
+    runs-on: ubuntu-20.04
+    #runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+    #- name: Public IP
+    #  id: ip
+    #  uses: haythem/public-ip@v1.2
+
+    #- name: Print Public IP
+    #  run: |
+    #    echo ${{ steps.ip.outputs.ipv4 }}
+    #    echo ${{ steps.ip.outputs.ipv6 }}
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      #id: setup-terraform
+
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      #id: setup-kubectl
+
+    - name: Prepare VNet Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/vnet-versions.tf \
+         ${{ github.workspace }}/modules/virtual_network/versions.tf
+        cp ${{ github.workspace }}/devops/terraform/vnet-providers.tf \
+         ${{ github.workspace }}/modules/virtual_network/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/vnet.tfvars \
+         ${{ github.workspace }}/modules/virtual_network/admin.auto.tfvars
+
+    - name: Initialize VNet Terraform
+      run: terraform init
+      working-directory: ${{ github.workspace }}/modules/virtual_network
+
+    - name: Apply VNet Terraform
+      run: |
+        terraform apply  -auto-approve
+        ls -l ./bin/
+      working-directory: ${{ github.workspace }}/modules/virtual_network
+
+
+    - name: Prepare Storage Account Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/sa-versions.tf \
+         ${{ github.workspace }}/modules/storage_accounts/versions.tf
+        cp ${{ github.workspace }}/devops/terraform/sa-providers.tf \
+         ${{ github.workspace }}/modules/storage_accounts/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/sa.tfvars \
+         ${{ github.workspace }}/modules/storage_accounts/admin.auto.tfvars
+
+    - name: Initialize Storage Account Terraform
+      run: terraform init -upgrade
+      working-directory: ${{ github.workspace }}/modules/storage_accounts
+
+    - name: Apply Storage Account Terraform
+      run: |
+        terraform apply -auto-approve
+        ls -l ./bin/
+        cat ./bin/data_planes.json
+
+      working-directory: ${{ github.workspace }}/modules/storage_accounts
+
+    - name: Prepare HPCC Terraform files
+      run: |
+        cp ${{ github.workspace }}/devops/terraform/hpcc-versions.tf \
+         ${{ github.workspace }}/versions.tf
+        cp ${{ github.workspace }}/devops/terraform/hpcc-providers.tf \
+         ${{ github.workspace }}/providers.tf
+        cp ${{ github.workspace }}/devops/terraform/hpcc.tfvars \
+         ${{ github.workspace }}/admin.auto.tfvars
+
+    - name: Initialize HPCC-Platform Terraform
+      run: terraform init -upgrade
+      working-directory: ${{ github.workspace }}
+
+    - name: Apply HPCC-Platform Terraform
+      run: terraform apply -auto-approve
+    #  run: terraform apply -var='azure={ "tenant_id":"${{ secrets.AZURE_TENANT_ID }}", "subscription_id":"${{ secrets.AZURE_SUBSCRIPTION_ID }}", "client_id":"${{ secrets.AZURE_CLIENT_ID }}", "client_secret":"${{ secrets.SERVICE_PRINCIPAL_VALUE }}", "server_id":"${{ secrets.SERVER_ID }}","object_id":"${{ secrets.OBJECT_ID }}"  }' -auto-approve
+      working-directory: ${{ github.workspace }}
+
+    - name : Get EclWatch IP
+      run: |
+        ls -l ~/.kube/config
+        helm list
+        kubectl get nodes
+        kubectl get pod
+        eclwatch_ip=$(kubectl get svc --field-selector metadata.name=eclwatch | awk 'NR==2 {print $4}')
+        echo "ECLWATCH_IP=${eclwatch_ip}" >> $GITHUB_ENV
+        echo "ECLWATCH_IP: ${{ env.ECLWATCH_IP }}"
+    #    failed_pods=$(kubectl get pod | grep -v "1/1" | grep -v "2/2" | grep -v "NAME" || true) &&
+    #    if [ "$failed_pods" != "" ]; then
+    #       echo "Pods not ready:"
+    #       echo "$failed_pods"
+    #       exit 1
+    #    end
+    #    #eclwatch_ip=$(kubectl get service | grep "^eclwatch" | sed "s/\(\s\)\+/ /g" | cut -d' ' -f 4)
+
+    - name: Change test directory permission
+      run: |
+        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        echo "github.workspace: ${{ github.workspace }} "
+        chmod 777 ${{ github.workspace }}/devops/tests/basic
+
+    - name: Run ECL Test
+      uses: addnab/docker-run-action@v3
+      with:
+        image: hpccsystems/platform-core:latest
+        options: --rm -v ${{ github.workspace }}/devops/tests/basic:/basic-test
+        run: |
+         /basic-test/run.sh ${{ env.ECLWATCH_IP }}
+         #/opt/HPCCSystems/bin/ecl run  -s ${{ env.ECLWATCH_IP }} hthor /basic-test/simple.ecl
+
+    - name: Destroy HPCC-Platform  Terraform deployment
+      if: always()
+      run: terraform destroy -auto-approve
+      working-directory: ${{ github.workspace }}
+
+    - name: Destroy Storage Account Terraform deployment
+      if: always()
+      run: |
+        terraform destroy -auto-approve
+      #  terraform state rm 'storage_account'
+      working-directory: ${{ github.workspace }}/modules/storage_accounts
+
+    - name: Destroy VNet Terraform deployment
+      if: always()
+      run: |
+        terraform destroy -auto-approve
+      #  terraform state rm 'module.virtual_network'
+      working-directory: ${{ github.workspace }}/modules/virtual_network

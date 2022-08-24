@@ -4,4 +4,3 @@ data "http" "host_ip" {
 
 data "azurerm_subscription" "current" {
 }
-
